@@ -27,7 +27,7 @@ public class League {
     public void addPlayerToTeam(Player player, Team teamSelected, Team team) {
         teamSelected.addPlayer(player);
         team.removeFromPlayersAvailable(player);
-        System.out.printf("%n" + player + " added to " + teamSelected + "%n");
+        System.out.printf(player + " added to " + teamSelected + "%n");
     }
 
     public void removePlayerFromTeam(Player player, Team teamSelected, Team team) {
@@ -35,6 +35,41 @@ public class League {
         team.addToPlayersAvailable(player);
         System.out.printf("%n" + player + " removed from " + teamSelected + "%n");
     }
+
+    // Here is a method to add players automatically and fairly, depending on their experience
+    public void addPlayersFairly(Team teamSelected, Team team) {
+        Player playerSelected;
+
+        int maxExperiencedPlayers = (team.getExperiencedPlayers().size()) / (team.getPlayersAvailable().size() / getMaxPlayers());
+        for (int i=0;i<maxExperiencedPlayers;i++) {
+            int random = (int)(Math.random()*team.getExperiencedPlayers().size());
+            playerSelected = team.getPlayerByIndex(random, team.getExperiencedPlayers());
+            addPlayerToTeam(playerSelected, teamSelected, team);
+        }
+
+        int maxInexperiencedPlayers = getMaxPlayers() - (teamSelected.getTeamSquad().size());
+        for (int i=0;i<maxInexperiencedPlayers;i++) {
+            int random = (int)(Math.random()*team.getInexperiencedPlayers().size());
+            playerSelected = team.getPlayerByIndex(random, team.getInexperiencedPlayers());
+            addPlayerToTeam(playerSelected, teamSelected, team);
+        }
+
+        System.out.printf("%n" + (maxExperiencedPlayers+maxInexperiencedPlayers) + " players added to " + teamSelected + "%n");
+    }
+
+    // Here is a method to add players automatically and randomly, without checking their experience
+    // Can easily be used in the addPlayersAutomatically() method from the UserInterface class
+
+//    public void addPlayersRandomly(Team teamSelected) {
+//        Player playerSelected;
+//        int num = League.getMaxPlayers() - (teamSelected.getTeamSquad().size());
+//        for (int i=0;i<num;i++) {
+//            int random = (int)(Math.random()*team.getPlayersAvailable().size());
+//            playerSelected = team.getPlayerByIndex(random, team.getPlayersAvailable());
+//            addPlayerToTeam(playerSelected, teamSelected, team);
+//        }
+//        System.out.printf("%n" + num + " players added to " + teamSelected + "%n");
+//    }
 
     public void printTeamRoster(Team teamSelected) {
         Collections.sort(teamSelected.getTeamSquad());
@@ -51,7 +86,7 @@ public class League {
 
         List<Player> players = teamSelected.getTeamSquad();
         for (Player player : players) {
-            report.put(player.getLastName(), player.isPreviousExperience());
+            report.put(player.getFullName(), player.isPreviousExperience());
         }
         int experiencedPlayers = 0;
         int inexperiencedPlayers = 0;
@@ -70,7 +105,7 @@ public class League {
 
         ArrayList<Player> players = teamSelected.getTeamSquad();
         for (Player player : players) {
-            report.put(player.getLastName(), player.getHeightInInches());
+            report.put(player.getFullName(), player.getHeightInInches());
         }
 
 //        Here I chose to use a method which allow to divide into three equal height ranges,
