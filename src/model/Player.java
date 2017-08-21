@@ -29,6 +29,8 @@ public class Player implements Comparable<Player>, Serializable {
         return lastName + " " + firstName;
     }
 
+    public String getFullName() { return lastName + " " + firstName;}
+
     public int getHeightInInches() {
         return heightInInches;
     }
