@@ -28,6 +28,7 @@ public class UserInterface {
         mPrompter.put("Create", "Create a new team");
         mPrompter.put("Add", "Add player to selected team");
         mPrompter.put("Remove", "Remove player from selected team");
+        mPrompter.put("Automatic", "Build fair teams automatically (option available only if all teams are empty)");
         mPrompter.put("Balance", "League Balance Report");
         mPrompter.put("Height", "Height report for selected team");
         mPrompter.put("Roster", "Print roster for selected team");
@@ -61,6 +62,10 @@ public class UserInterface {
 
                     case "remove":
                         removePlayerFromSelectedTeam();
+                        break;
+
+                    case "automatic":
+                        addPlayersAutomatically();
                         break;
 
                     case "balance":
@@ -103,12 +108,12 @@ public class UserInterface {
     }
 
     private void addPlayerToSelectedTeam() throws IOException {
-        if (team.getPlayersAvailableToString().size() == 0) {
+        if (team.getPlayersAvailable().size() == 0) {
             System.out.println("No more available players");
         } else {
             selectTeam();
-            if (teamSelected.getTeamSquadToString().size() >= league.getMaxPlayers()) {
-                System.out.println("Maximum number of players reached for team " + teamSelected);
+            if (teamSelected.getTeamSquad().size() >= league.getMaxPlayers()) {
+                System.out.println("Maximum number of players reached for " + teamSelected);
                 System.out.println("Please remove players or select an other team.");
             } else {
                 Collections.sort(team.getPlayersAvailable());
@@ -120,13 +125,34 @@ public class UserInterface {
 
     private void removePlayerFromSelectedTeam() throws IOException {
         selectTeam();
-        if (teamSelected.getTeamSquadToString().size() == 0) {
-            System.out.printf("%n Team " + teamSelected + " is empty");
+        if (teamSelected.getTeamSquad().size() == 0) {
+            System.out.printf("%n" + teamSelected + " is empty");
         } else {
             Collections.sort(teamSelected.getTeamSquad());
             playerSelected = promptPlayerToRemove(teamSelected.getTeamSquad());
             league.removePlayerFromTeam(playerSelected, teamSelected, team);
         }
+    }
+
+    private void addPlayersAutomatically() throws IOException {
+        // Here a whole team of players will be added automatically every time this method is being called.
+        // For this to happen, all the teams created need to be empty in order to fairly distribute the players
+        if (team.getPlayersAvailable().size() == 0) {
+            System.out.println("No more available players");
+            run();
+        } else if (team.getPlayersAvailable().size() < league.getMaxPlayers()) {
+            System.out.println("Not enough players available to create a full team");
+            run();
+        }
+
+        for (Team team : league.getAllTeams()) {
+                if (team.getTeamSquad().size() > 0 && team.getTeamSquad().size() < league.getMaxPlayers()) {
+                    System.out.println("Please make sure team " + team.getTeamName() + " is empty before adding players automatically");
+                    run();
+                }
+            }
+        selectTeam();
+        league.addPlayersFairly(teamSelected, team);
     }
 
     private void leagueBalanceReport() {
@@ -193,6 +219,7 @@ public class UserInterface {
             try {
                 System.out.printf("%nYour choice:   ");
                 String optionAsString = mReader.readLine();
+                System.out.printf("%n");
                 choice = Integer.parseInt(optionAsString.trim());
             } catch (NumberFormatException nfe) {
                 System.out.println("Focus!");
