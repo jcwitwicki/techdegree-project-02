@@ -8,6 +8,9 @@ public class Team implements Comparable<Team> {
     private String coachName;
     private ArrayList<Player> teamSquad;
     private Set<Player> playersAvailable;
+    private ArrayList<Player> experiencedPlayers;
+    private ArrayList<Player> inexperiencedPlayers;
+
 
     public Team() {
         playersAvailable = new HashSet<>(Arrays.asList(Players.load()));
@@ -17,7 +20,7 @@ public class Team implements Comparable<Team> {
         this.teamName = teamName;
         this.coachName = coachName;
         teamSquad = new ArrayList<>();
-    }
+        }
 
     public void addPlayer(Player player) {
         teamSquad.add(player);
@@ -41,13 +44,12 @@ public class Team implements Comparable<Team> {
 
     public List<String> getPlayersAvailableToString() {
         List<String> players = new ArrayList<>();
-
         for (Player player : getPlayersAvailable()) {
             players.add(player.toFullString());
         }
         Collections.sort(players);
         return players;
-    }
+}
 
     public List<String> getTeamSquadToString() {
         List<String> squad = new ArrayList<>();
@@ -91,12 +93,38 @@ public class Team implements Comparable<Team> {
         return coachName;
     }
 
-    public List<Player> getPlayersAvailable() {
+    public ArrayList<Player> getPlayersAvailable() {
         return new ArrayList<>(playersAvailable);
     }
 
     public ArrayList<Player> getTeamSquad() {
         return teamSquad;
+    }
+
+    public ArrayList<Player> getExperiencedPlayers() {
+        experiencedPlayers = new ArrayList<>();
+        for (Player player: getPlayersAvailable()) {
+            if (player.isPreviousExperience()) {
+                experiencedPlayers.add(player);
+            }
+        }
+        return experiencedPlayers;
+    }
+
+    public ArrayList<Player> getInexperiencedPlayers() {
+        inexperiencedPlayers = new ArrayList<>();
+        for (Player player: getPlayersAvailable()) {
+            if (!player.isPreviousExperience()) {
+                inexperiencedPlayers.add(player);
+            }
+        }
+        return inexperiencedPlayers;
+    }
+
+    public Player getPlayerByIndex(int index, ArrayList<Player> list) {
+        List<Player> listPlayers = new ArrayList<>(list);
+        Player player = listPlayers.get(index);
+        return player;
     }
 
     @Override
