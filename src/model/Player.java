@@ -65,7 +65,7 @@ public class Player implements Comparable<Player>, Serializable {
         if (heightInInches != player.heightInInches) return false;
         if (previousExperience != player.previousExperience) return false;
         if (!firstName.equals(player.firstName)) return false;
-        return lastName.equals(player.lastName);
+        return lastName.equals(player.lastName); 
     }
 
     @Override
