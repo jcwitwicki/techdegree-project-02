@@ -253,7 +253,7 @@ public class UserInterface {
             System.out.printf("%nNo teams available, please create it first: %n");
             createNewTeam();
             selectTeam();
-        } else {
+        } else { 
             Collections.sort(league.getAllTeams());
             teamSelected = promptTeam(league.getAllTeams());
         }
