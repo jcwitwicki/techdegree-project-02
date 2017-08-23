@@ -11,7 +11,6 @@ public class Team implements Comparable<Team> {
     private ArrayList<Player> experiencedPlayers;
     private ArrayList<Player> inexperiencedPlayers;
 
-
     public Team() {
         playersAvailable = new HashSet<>(Arrays.asList(Players.load()));
     }
@@ -57,32 +56,6 @@ public class Team implements Comparable<Team> {
             squad.add(player.toFullString());
         }
         return squad;
-    }
-
-    public int lowestHeight() {
-        List<Integer> heightPlayers = new ArrayList<>();
-        int lowHeight = 0;
-        for (Player player : getPlayersAvailable()) {
-            heightPlayers.add(player.getHeightInInches());
-            lowHeight = heightPlayers.get(0);
-            for (Integer i : heightPlayers) {
-                if (i < lowHeight) lowHeight = i;
-            }
-        }
-        return lowHeight;
-    }
-
-    public int highestHeight() {
-        List<Integer> heightPlayers = new ArrayList<>();
-        int highHeight = 0;
-        for (Player player : getPlayersAvailable()) {
-            heightPlayers.add(player.getHeightInInches());
-            highHeight = heightPlayers.get(0);
-            for (Integer i : heightPlayers) {
-                if (i > highHeight) highHeight = i;
-            }
-        }
-        return highHeight;
     }
 
     public String getTeamName() {

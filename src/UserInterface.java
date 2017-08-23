@@ -6,10 +6,7 @@ import model.Team;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserInterface {
 
@@ -32,6 +29,9 @@ public class UserInterface {
         mPrompter.put("Balance", "League Balance Report");
         mPrompter.put("Height", "Height report for selected team");
         mPrompter.put("Roster", "Print roster for selected team");
+        mPrompter.put("New", "Add new player to the waiting list");
+        mPrompter.put("Replace", "Replace league player with the next player from the waiting list");
+        mPrompter.put("Waiting", "Display waiting list");
         mPrompter.put("Quit", "Exit the program");
     }
 
@@ -78,6 +78,18 @@ public class UserInterface {
 
                     case "roster":
                         printRoster();
+                        break;
+
+                    case "new":
+                        addNewPlayer();
+                        break;
+
+                    case "replace":
+                        replacePlayer();
+                        break;
+
+                    case "waiting":
+                        displayWaitingList();
                         break;
 
                     case "quit":
@@ -146,13 +158,18 @@ public class UserInterface {
         }
 
         for (Team team : league.getAllTeams()) {
-                if (team.getTeamSquad().size() > 0 && team.getTeamSquad().size() < league.getMaxPlayers()) {
-                    System.out.println("Please make sure team " + team.getTeamName() + " is empty before adding players automatically");
-                    run();
-                }
+            if (team.getTeamSquad().size() > 0 && team.getTeamSquad().size() < league.getMaxPlayers()) {
+                System.out.println("Please make sure team " + team.getTeamName() + " is empty before adding players automatically");
+                run();
             }
+        }
         selectTeam();
-        league.addPlayersFairly(teamSelected, team);
+        if (teamSelected.getTeamSquad().size() >= league.getMaxPlayers()) {
+            System.out.println("Maximum number of players reached for " + teamSelected);
+            System.out.println("Please remove players or select an other team.");
+        } else {
+            league.addPlayersFairly(teamSelected, team);
+        }
     }
 
     private void leagueBalanceReport() {
@@ -177,6 +194,60 @@ public class UserInterface {
         league.printTeamRoster(teamSelected);
     }
 
+    private void addNewPlayer() throws IOException {
+        System.out.printf("%nFirst name: ");
+        String firstName = mReader.readLine();
+        System.out.printf("Last Name: ");
+        String lastName = mReader.readLine();
+
+        int heightInInches = 0;
+        boolean loop = true;
+        while (loop) {
+            try {
+                System.out.printf("Height in inches: ");
+                heightInInches = Integer.parseInt(mReader.readLine().trim());
+                loop = false;
+            } catch (NumberFormatException nfe) {
+                System.out.printf("Try again!");
+            }
+        }
+
+        boolean previousExperience = false;
+        String answer;
+        do {
+            System.out.printf("Has previous experience? (Y/N): ");
+            answer = mReader.readLine();
+            if (answer.equalsIgnoreCase("y")) { previousExperience = true; }
+            if (answer.equalsIgnoreCase("n")) { previousExperience = false; }
+        } while (!(answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("n")));
+
+        System.out.printf(firstName + " " + lastName + " has been added to the waiting list%n");
+        league.playerCreation(firstName,lastName,heightInInches,previousExperience);
+    }
+
+    private void replacePlayer() throws IOException {
+
+        if (league.getWaitingList().size() > 0) {
+            Player playerSelected = promptPlayerToAdd(team.getPlayersAvailable());
+            team.removeFromPlayersAvailable(playerSelected);
+            league.waitingList.add(playerSelected);
+            Player nextPlayer = league.getWaitingList().get(0);
+            team.addToPlayersAvailable(nextPlayer);
+            league.waitingList.remove(nextPlayer);
+            System.out.println(nextPlayer + " has been registered");
+            System.out.println(playerSelected + " moved to the waiting list");
+        } else {
+            System.out.println("Please add a new player to the waiting list before replacing a registered player");
+        }
+    }
+
+    private void displayWaitingList() {
+        if (league.getWaitingList().size()>0) { league.printWaitingList();}
+        else {
+            System.out.println("No players waiting for registration");
+        }
+    }
+
     private Team selectTeam() throws IOException {
         if (league.getAllTeams().size() == 0) {
             System.out.printf("%nNo teams available, please create it first: %n");
@@ -192,6 +263,7 @@ public class UserInterface {
     private Team promptTeam(List<Team> allTeams) throws IOException {
         System.out.printf("%nAvailable teams: %n%n");
         int index = promptForIndex(league.getAllTeamsToString());
+        Collections.sort(league.getAllTeams());
         return allTeams.get(index);
     }
 
@@ -222,11 +294,9 @@ public class UserInterface {
                 System.out.printf("%n");
                 choice = Integer.parseInt(optionAsString.trim());
             } catch (NumberFormatException nfe) {
-                System.out.println("Focus!");
+                System.out.printf("Focus!");
             }
         } while (!(choice > 0 && choice < counter));
         return choice - 1;
     }
-
 }
-
