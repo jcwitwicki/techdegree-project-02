@@ -1,12 +1,12 @@
 import model.League;
-import model.Player;
-import model.Players;
-import model.Team;
+        import model.Player;
+        import model.Players;
+        import model.Team;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
+        import java.io.BufferedReader;
+        import java.io.IOException;
+        import java.io.InputStreamReader;
+        import java.util.*;
 
 public class UserInterface {
 
@@ -120,7 +120,7 @@ public class UserInterface {
     }
 
     private void addPlayerToSelectedTeam() throws IOException {
-        if (team.getPlayersAvailable().size() == 0) {
+        if (team.getPlayersAvailable().isEmpty()) {
             System.out.println("No more available players");
         } else {
             selectTeam();
@@ -137,7 +137,7 @@ public class UserInterface {
 
     private void removePlayerFromSelectedTeam() throws IOException {
         selectTeam();
-        if (teamSelected.getTeamSquad().size() == 0) {
+        if (teamSelected.getTeamSquad().isEmpty()) {
             System.out.printf("%n" + teamSelected + " is empty");
         } else {
             Collections.sort(teamSelected.getTeamSquad());
@@ -149,7 +149,7 @@ public class UserInterface {
     private void addPlayersAutomatically() throws IOException {
         // Here a whole team of players will be added automatically every time this method is being called.
         // For this to happen, all the teams created need to be empty in order to fairly distribute the players
-        if (team.getPlayersAvailable().size() == 0) {
+        if (team.getPlayersAvailable().isEmpty()) {
             System.out.println("No more available players");
             run();
         } else if (team.getPlayersAvailable().size() < league.getMaxPlayers()) {
@@ -158,7 +158,7 @@ public class UserInterface {
         }
 
         for (Team team : league.getAllTeams()) {
-            if (team.getTeamSquad().size() > 0 && team.getTeamSquad().size() < league.getMaxPlayers()) {
+            if (!team.getTeamSquad().isEmpty() && team.getTeamSquad().size() < league.getMaxPlayers()) {
                 System.out.println("Please make sure team " + team.getTeamName() + " is empty before adding players automatically");
                 run();
             }
@@ -227,7 +227,12 @@ public class UserInterface {
 
     private void replacePlayer() throws IOException {
 
-        if (league.getWaitingList().size() > 0) {
+        if (team.getPlayersAvailable().isEmpty()) {
+            System.out.println("All registered players have been assigned to a team already");
+        }
+        else if (league.getWaitingList().isEmpty()) {
+            System.out.println("Please add a new player to the waiting list before replacing a registered player");
+        }  else {
             Player playerSelected = promptPlayerToAdd(team.getPlayersAvailable());
             team.removeFromPlayersAvailable(playerSelected);
             league.waitingList.add(playerSelected);
@@ -236,20 +241,18 @@ public class UserInterface {
             league.waitingList.remove(nextPlayer);
             System.out.println(nextPlayer + " has been registered");
             System.out.println(playerSelected + " moved to the waiting list");
-        } else {
-            System.out.println("Please add a new player to the waiting list before replacing a registered player");
         }
     }
 
     private void displayWaitingList() {
-        if (league.getWaitingList().size()>0) { league.printWaitingList();}
+        if (!league.getWaitingList().isEmpty()) { league.printWaitingList();}
         else {
             System.out.println("No players waiting for registration");
         }
     }
 
     private Team selectTeam() throws IOException {
-        if (league.getAllTeams().size() == 0) {
+        if (league.getAllTeams().isEmpty()) {
             System.out.printf("%nNo teams available, please create it first: %n");
             createNewTeam();
             selectTeam();
@@ -291,10 +294,9 @@ public class UserInterface {
             try {
                 System.out.printf("%nYour choice:   ");
                 String optionAsString = mReader.readLine();
-                System.out.printf("%n");
                 choice = Integer.parseInt(optionAsString.trim());
             } catch (NumberFormatException nfe) {
-                System.out.printf("Focus!");
+                System.out.println("Focus!");
             }
         } while (!(choice > 0 && choice < counter));
         return choice - 1;
